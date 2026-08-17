@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+redis
+langchain
+langchain_openai
+pydantic
+python_dotenv
+pydantic_settings
+qdrant-client
+langchain-qdrant
+fastembed
+sentence-transformers
+docling
+langchain_text_splitters
+pytest
