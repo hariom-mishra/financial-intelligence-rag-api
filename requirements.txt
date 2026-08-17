@@ -14,3 +14,6 @@ docling
 langchain_text_splitters
 pytest
 python-multipart
+aioboto3
+asyncpg
+sqlalchemy
