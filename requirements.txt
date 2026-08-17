@@ -13,3 +13,4 @@ sentence-transformers
 docling
 langchain_text_splitters
 pytest
+python-multipart

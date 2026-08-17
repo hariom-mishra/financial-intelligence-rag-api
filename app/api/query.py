@@ -5,6 +5,6 @@ from services.llm_generator import generate_response
 router = APIRouter(prefix="/query", tags=["query"])
 
 @router.post("/", response_model=QueryResponse)
-def ask_question(request: QueryRequest):
-    res = generate_response(request.query)
+async def ask_question(request: QueryRequest):
+    res = await generate_response(request.query)
     return {"message": res}
