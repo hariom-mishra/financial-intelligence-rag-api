@@ -65,12 +65,15 @@ async def get_retriever(user_id: int):
         collection_exists = await client.collection_exists(collection_name=collection_name)
 
         if collection_exists:
-            qdrant_store = QdrantVectorStore(
-                client=client,
-                collection_name=collection_name,
+            qdrant_store = QdrantVectorStore.from_existing_collection(
                 embedding=dense_embedding,
                 sparse_embedding=sparse_embedding,
+                collection_name=collection_name,
                 retrieval_mode=RetrievalMode.HYBRID,
+                url=settings.QDRANT_URL,
+                api_key=settings.QDRANT_API_KEY,
+                vector_name="dense",
+                sparse_vector_name="sparse",
             )
         else:
             raise VectorDBError(
@@ -101,15 +104,19 @@ async def index_documents(user_id: int, chunks: list):
         )
         sparse_embedding = FastEmbedSparse(model_name="Qdrant/bm25")
         collection_name = _collection_name(user_id)
-        client = _get_qdrant_client()
 
-        await QdrantVectorStore.afrom_documents(
-            documents=chunks,
-            collection_name=collection_name,
+        qdrant_store = QdrantVectorStore.from_existing_collection(
             embedding=dense_embedding,
             sparse_embedding=sparse_embedding,
+            collection_name=collection_name,
             retrieval_mode=RetrievalMode.HYBRID,
-            async_client=client,
+            url=settings.QDRANT_URL,
+            api_key=settings.QDRANT_API_KEY,
+            vector_name="dense",
+            sparse_vector_name="sparse",
         )
+        
+        await qdrant_store.aadd_documents(documents=chunks)
+        
     except Exception as e:
         raise VectorDBError(f"Failed to index documents: {str(e)}")
