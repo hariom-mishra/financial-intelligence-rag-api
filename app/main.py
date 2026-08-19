@@ -1,10 +1,15 @@
 from dotenv import load_dotenv
-from services.llm_generator import generate_response
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from api.router import api_router
 from core.exceptions import RAGException
+from core.db import db_engine, Base
+from contextlib import asynccontextmanager
 import logging
+
+# Ensure all models are imported so Base.metadata can discover them
+import schema.users
+import schema.user_links
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -12,7 +17,15 @@ logger = logging.getLogger("RAGApp")
 
 load_dotenv()
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Run database initialization at startup
+    async with db_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("Database tables verified/created successfully.")
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(api_router)
 

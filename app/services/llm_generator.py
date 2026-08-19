@@ -2,20 +2,32 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from services.qdrant_services import get_retriever
 from core.exceptions import LLMGenerationError, VectorDBError, DocumentParserError
+from core.setttings import settings
 
-async def generate_response(query: str):
+async def generate_response(query: str, user_id: int) -> str:
+    """
+    Run the hybrid-search RAG pipeline for a specific user:
+      1. Retrieve relevant chunks from the user's Qdrant collection.
+      2. Format a prompt with context + query.
+      3. Call the LLM and return the response.
+    """
     try:
-        llm = ChatOpenAI(model="gpt-4o")
+        llm = ChatOpenAI(model="gpt-4o", api_key=settings.OPENAI_API_KEY)
 
         prompt = PromptTemplate.from_template(
-        """you are a helpful assistent try to answer the user query with the help of 
-        given context if the context is not available or related to user query say sorry i am not able to help you with your query
-        context: {context}
-        query: {query}
-        """,
+            """You are a financial intelligence assistant. Answer the user's query 
+using only the provided context. If the context doesn't contain relevant 
+information, say: "I'm sorry, I don't have enough information in your documents to answer that."
+
+Context:
+{context}
+
+Query: {query}
+
+Answer:""",
         )
 
-        retriever = await get_retriever()
+        retriever = await get_retriever(user_id=user_id)
         retrieved_docs = await retriever.ainvoke(query)
         context = _join_docs(docs=retrieved_docs)
         formatted_prompt = prompt.format(context=context, query=query)
@@ -27,6 +39,6 @@ async def generate_response(query: str):
     except Exception as e:
         raise LLMGenerationError(f"Failed to generate LLM response: {str(e)}")
 
-def _join_docs(docs: list):
-    final_context = "\n\n".join([doc.page_content for doc in docs])
-    return final_context
+
+def _join_docs(docs: list) -> str:
+    return "\n\n".join([doc.page_content for doc in docs])

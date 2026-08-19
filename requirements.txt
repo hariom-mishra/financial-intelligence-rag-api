@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 redis
+rq
 langchain
 langchain_openai
 pydantic
@@ -17,3 +18,6 @@ python-multipart
 aioboto3
 asyncpg
 sqlalchemy
+greenlet
+passlib[bcrypt]
+python-jose[cryptography]

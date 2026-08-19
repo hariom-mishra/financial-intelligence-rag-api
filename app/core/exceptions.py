@@ -19,3 +19,17 @@ class LLMGenerationError(RAGException):
     """Raised when LLM response generation fails"""
     def __init__(self, message: str):
         super().__init__(message, status_code=502)
+
+class DatabaseConnectionError(RAGException):
+    def __init__(self, message: str = "Failed to connect to the db"):
+        super().__init__(message, status_code=500)
+
+class UserAlreadyExistsError(RAGException):
+    """Raised when a signup is attempted with an already-registered email"""
+    def __init__(self, email: str):
+        super().__init__(f"User with email '{email}' already exists.", status_code=409)
+
+class InvalidCredentialsError(RAGException):
+    """Raised when login credentials are incorrect"""
+    def __init__(self):
+        super().__init__("Invalid email or password.", status_code=401)
