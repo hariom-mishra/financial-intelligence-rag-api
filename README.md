@@ -145,9 +145,3 @@ Run the end-to-end integration test suite:
 ```bash
 python tests/test_e2e.py
 ```
-
----
-
-## 📄 License
-
-MIT License.
