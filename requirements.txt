@@ -21,3 +21,4 @@ sqlalchemy
 greenlet
 passlib[bcrypt]
 python-jose[cryptography]
+deepeval
