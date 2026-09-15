@@ -5,26 +5,20 @@ from core.exceptions import LLMGenerationError, VectorDBError, DocumentParserErr
 from core.setttings import settings
 
 async def generate_response(query: str, user_id: int) -> str:
-    """
-    Run the hybrid-search RAG pipeline for a specific user:
-      1. Retrieve relevant chunks from the user's Qdrant collection.
-      2. Format a prompt with context + query.
-      3. Call the LLM and return the response.
-    """
+    
     try:
         llm = ChatOpenAI(model="gpt-4o", api_key=settings.OPENAI_API_KEY)
 
         prompt = PromptTemplate.from_template(
             """You are a financial intelligence assistant. Answer the user's query 
-using only the provided context. If the context doesn't contain relevant 
-information, say: "I'm sorry, I don't have enough information in your documents to answer that."
-
-Context:
-{context}
-
-Query: {query}
-
-Answer:""",
+            using only the provided context. If the context doesn't contain relevant 
+            information, say: "I'm sorry, I don't have enough information in your 
+            documents to answer that."
+            
+            Context:
+            {context}
+            Query: {query}
+            Answer:""",                  
         )
 
         retriever = await get_retriever(user_id=user_id)
